@@ -1,3 +1,6 @@
 /ollama/models/
 /notebooks/.ipynb_checkpoints/
 /.idea/
+/notebooks/cache
+notebooks/pandasai.log
+*.py~

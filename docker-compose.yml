@@ -15,7 +15,11 @@ services:
       interval: 1m30s
       timeout: 10s
       retries: 3
-
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.2
+        aliases:
+          - jupyter
   postgres:
     build:
       context: .
@@ -33,8 +37,11 @@ services:
           memory: 1g  # Limit memory to 1GB
         reservations:
           memory: 512m  # Reserve 512MB of memory
-
-
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.3
+        aliases:
+          - postgres
   mysql:
     build:
       context: .
@@ -52,8 +59,11 @@ services:
           memory: 1g  # Limit memory to 1GB
         reservations:
           memory: 512m  # Reserve 512MB of memory
-
-
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.4
+        aliases:
+          - mysql
   ollama:
     image: ollama/ollama
     container_name: ollama
@@ -76,7 +86,15 @@ services:
               count: 1
               capabilities: [ gpu ]
     runtime: nvidia
-
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.5
+        aliases:
+          - ollama
 networks:
-  default:
+  my_network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+          gateway: 192.168.100.1
