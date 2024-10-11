@@ -1,0 +1,12 @@
+# Dockerfile for MySQL
+FROM mysql:latest
+
+# Expose the MySQL port
+EXPOSE 3306
+
+# Environment variables for MySQL
+ENV MYSQL_USER=demo
+ENV MYSQL_PASSWORD=qwe123
+ENV MYSQL_ROOT_PASSWORD=qwe123
+ENV MYSQL_DATABASE=demodb
+

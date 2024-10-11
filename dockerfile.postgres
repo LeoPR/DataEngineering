@@ -1,0 +1,10 @@
+# Dockerfile for PostgreSQL
+FROM postgres:latest
+
+# Expose the PostgreSQL port
+EXPOSE 5432
+
+# Environment variables for PostgreSQL
+ENV POSTGRES_USER=demo
+ENV POSTGRES_PASSWORD=qwe123
+ENV POSTGRES_DB=demodb

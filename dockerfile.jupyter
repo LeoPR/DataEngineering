@@ -1,0 +1,21 @@
+# Dockerfile for Jupyter Notebook
+FROM jupyter/base-notebook:latest
+
+# Update pip
+RUN pip install --upgrade pip
+
+# Copy local requirements.txt to the Docker image
+COPY requirements.txt /tmp/
+
+# Install the requirements
+#RUN pip install -r /tmp/requirements.txt
+RUN pip install pandas==1.5.3 numpy==1.26.4 pandasai
+
+RUN pip cache purge
+#RUN rm -rf /tmp/*
+
+# Expose the Jupyter Notebook port
+EXPOSE 8888
+
+# Start Jupyter Notebook
+CMD ["start-notebook.sh", "--NotebookApp.token=''"]
