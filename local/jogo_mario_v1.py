@@ -1,4 +1,12 @@
 # Inicialização do jogo
+# Jogo gerado pelo modelo "Mario" Llama3.2:3b
+# Leonardo Marques de Souza
+# leonardo.souza@indt.org.br
+# versão alpha 0.1v
+# * tela ascii
+# * sem limites de movimento
+# * teclas A, W, S, D para movimento
+
 posx = 5
 posy = 2
 velocidade_x = 0

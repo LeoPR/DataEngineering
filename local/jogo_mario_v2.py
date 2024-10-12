@@ -1,3 +1,13 @@
+# Inicialização do jogo
+# Jogo gerado pelo modelo "Mario" Llama3.2:1b
+# Leonardo Marques de Souza
+# leonardo.souza@indt.org.br
+# versão alpha 0.1v
+# * tela pygame
+# * apenas muda cores
+# * teclas A, W, S, D para mudança de cores
+# * modelo não entendeu o propósito
+# * elaborar melhora as perguntas
 
 import pygame
 from pygame.locals import *
