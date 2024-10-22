@@ -33,28 +33,28 @@ async function fetchModelDescriptions() {
 }
 
 // Get the complete description, inheriting from parent if necessary
-// Get the complete description, inheriting from parent if necessary
 function getCompleteDescription(modelName, descriptions) {
     let model = descriptions[modelName];
 
     if (!model) {
-        // If the model doesn't exist in descriptions, return a fallback
         return {
             title: modelName, // Fallback to the model name
+            summary: 'No summary available.',
             description: 'No description available.'
         };
     }
 
-    // Get title and description, falling back to inheritance
+    // Get title, summary, and description, falling back to inheritance
     let completeTitle = model.title || (model.inherits ? descriptions[model.inherits]?.title : '');
+    let completeSummary = model.summary || (model.inherits ? descriptions[model.inherits]?.summary : 'No summary available.');
     let completeDescription = model.description || (model.inherits ? descriptions[model.inherits]?.description : '');
 
     return {
         title: completeTitle,
+        summary: completeSummary,
         description: completeDescription
     };
 }
-
 
 // Populate the model selection dropdown
 function populateModelSelect(models, descriptions) {
@@ -78,14 +78,17 @@ function populateModelSelect(models, descriptions) {
         modelSelect.value = 'codellama:13b'; // Fallback default model
         showFeedbackMessage(`Model "${lastUsedModel}" not found. Using fallback: "codellama:13b".`, false);
     }
+
+    // Show description and summary for the default model
+    showModelDetails(modelSelect.value, descriptions);
 }
 
+// Show model details in a text area
+function showModelDetails(modelName, descriptions) {
+    const { summary, description } = getCompleteDescription(modelName, descriptions);
 
-// Show model description in a text area
-function showModelDescription(modelName, descriptions) {
-    const descriptionTextArea = document.getElementById('model-description');
-    const { description } = getCompleteDescription(modelName, descriptions);
-    descriptionTextArea.value = description; // Set the text area to show the model description
+    document.getElementById('model-summary').textContent = summary; // Show summary
+    document.getElementById('model-description').value = description; // Set the text area to show the model description
 }
 
 // Feedback message display
@@ -115,10 +118,10 @@ document.getElementById('set-model-button').addEventListener('click', () => {
     }
 });
 
-// Event listener to show the model description
+// Event listener to show the model details
 document.getElementById('model-select').addEventListener('change', (event) => {
     const selectedModel = event.target.value;
-    showModelDescription(selectedModel, modelDescriptions);
+    showModelDetails(selectedModel, modelDescriptions);
 });
 
 // Fetch and populate models on page load
