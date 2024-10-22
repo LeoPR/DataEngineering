@@ -1,0 +1,8 @@
+{
+    "errors": {
+        "network": "Network error occurred. Please check your connection.",
+        "api": "API error occurred. Please try again later.",
+        "empty": "Message cannot be empty.",
+        "default": "An unexpected error occurred."
+    }
+}

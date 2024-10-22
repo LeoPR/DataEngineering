@@ -20,50 +20,7 @@ services:
         ipv4_address: 192.168.100.2
         aliases:
           - jupyter
-  postgres:
-    build:
-      context: .
-      dockerfile: dockerfile.postgres
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 1g  # Limit memory to 1GB
-        reservations:
-          memory: 512m  # Reserve 512MB of memory
-    networks:
-      my_network:
-        ipv4_address: 192.168.100.3
-        aliases:
-          - postgres
-  mysql:
-    build:
-      context: .
-      dockerfile: dockerfile.mysql
-    ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    deploy:
-      resources:
-        limits:
-          memory: 1g  # Limit memory to 1GB
-        reservations:
-          memory: 512m  # Reserve 512MB of memory
-    networks:
-      my_network:
-        ipv4_address: 192.168.100.4
-        aliases:
-          - mysql
+
   ollama:
     image: ollama/ollama
     container_name: ollama
@@ -91,6 +48,24 @@ services:
         ipv4_address: 192.168.100.5
         aliases:
           - ollama
+
+  open-webui:
+    build:
+      context: .
+      dockerfile: dockerfile.llmwebui
+    container_name: ollama-webui
+    ports:
+      - "8080:80"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - ./client:/usr/share/nginx/html
+    networks:
+      my_network:
+        ipv4_address: 192.168.100.6
+        aliases:
+          - ollama-webui
+
 networks:
   my_network:
     driver: bridge
