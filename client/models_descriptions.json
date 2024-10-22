@@ -1,0 +1,31 @@
+{
+    "models": {
+        "llama": {
+            "title": "Llama Model Series",
+            "summary": "A family of models designed for advanced natural language understanding and generation.",
+            "description": "The Llama model series excels at natural language tasks, enabling applications such as text generation, summarization, and conversational agents. These models are trained on diverse datasets to provide accurate and contextually relevant responses."
+        },
+        "ollama2": {
+            "inherits": "llama",
+            "title": "Ollama 2 Model",
+            "summary": "An iteration focused on improving conversational context and response quality.",
+            "description": "Ollama 2 builds on the foundational capabilities of the Llama series, enhancing its conversational abilities. This model is optimized for understanding user intent and generating coherent, context-aware dialogue, making it suitable for chatbots and interactive applications."
+        },
+        "ollama3": {
+            "inherits": "ollama2",
+            "summary": "An advanced model in the Ollama series with enhanced contextual awareness.",
+            "description": "Ollama 3 introduces significant improvements in understanding complex queries and generating responses that are not only relevant but also nuanced. It leverages advancements in architecture and training techniques to excel in a wide range of natural language tasks."
+        },
+        "ollama3.2": {
+            "inherits": "ollama3",
+            "title": "Ollama 3.2 Model",
+            "summary": "The latest enhancement in the Ollama 3 series, fine-tuned for specific tasks.",
+            "description": "Ollama 3.2 further refines the capabilities of Ollama 3, focusing on task-specific performance enhancements. It is designed for scenarios requiring high accuracy and context retention over extended conversations, making it ideal for applications in customer support and virtual assistants."
+        },
+        "llama2-uncensored": {
+            "title": "Llama 2 Uncensored Model",
+            "summary": "A model variant with fewer content filters.",
+            "description": "Llama 2 Uncensored is a version of the Llama model optimized for applications that require less restrictive content generation. While it maintains the same foundational capabilities as Llama, this model allows for a wider range of outputs, making it suitable for creative writing and unfiltered content generation."
+        }
+    }
+}
