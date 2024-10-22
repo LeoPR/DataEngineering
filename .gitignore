@@ -6,3 +6,5 @@ notebooks/pandasai.log
 *.py~
 /local
 /test
+ollama/history
+notebooks/Test1-Copy2.ipynb
