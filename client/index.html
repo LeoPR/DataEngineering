@@ -2,41 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ollama Model Selector & Chat</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <!-- Sidebar -->
-    <aside class="sidebar">
+    <div class="sidebar">
         <h2>Select a Model</h2>
         <div id="model-container">
-            <select id="model-select" aria-label="Model Selection">
+            <select id="model-select">
                 <option value="">Loading models...</option>
             </select>
             <button id="set-model-button">Set as Default</button>
         </div>
-        <div id="model-summary" class="model-summary"></div>
-        <textarea id="model-description" rows="5" readonly></textarea>
-    </aside>
 
-    <!-- Chat Area -->
-    <main class="chat-container">
-        <header class="chat-header">
+        <div id="model-summary" class="model-summary"></div> <!-- Summary field -->
+        <textarea id="model-description" rows="5" readonly></textarea> <!-- Description field -->
+    </div>
+
+    <div class="chat-container">
+        <div class="chat-header">
             <h2>Chat with Model</h2>
-        </header>
-        <section id="chat-window" class="chat-window"></section>
+        </div>
+        <div id="chat-window" class="chat-window">
+            <!-- Chat messages will appear here -->
+        </div>
         <div class="chat-input">
-            <textarea id="user-input" placeholder="Type your message..."></textarea>
+            <textarea id="user-input" placeholder="Type your message..." rows="1"></textarea>
             <button id="send-button">Send</button>
         </div>
-    </main>
+    </div>
 </div>
 
 <div id="feedback-message" class="feedback-message"></div>
 
-<script src="config.js"></script>
-<script src="app.js"></script>
+<script type="module" src="app.js"></script>
 </body>
 </html>
