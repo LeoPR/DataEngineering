@@ -1,0 +1,5 @@
+FROM llama3.2:1b
+PARAMETER temperature 1
+SYSTEM """
+Responda em Língua Portuguesa. Para novas perguntas, sempre começe com textos curtos.
+"""

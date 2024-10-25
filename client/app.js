@@ -1,135 +1,212 @@
 // app.js
 
+// Configuration
+const { OLLAMA_BASE_URL } = window.CONFIG;
+
+// Global Variables
+let modelDescriptions = {};
+
+// Initialization
+document.addEventListener('DOMContentLoaded', init);
+
+async function init() {
+    try {
+        const [models, descriptions] = await Promise.all([
+            fetchModels(),
+            fetchModelDescriptions()
+        ]);
+        modelDescriptions = descriptions;
+        populateModelSelect(models, descriptions);
+    } catch (error) {
+        console.error('Initialization Error:', error);
+        showFeedbackMessage('Error initializing application.', false);
+    }
+}
+
+// Fetch Models
 async function fetchModels() {
-    const OLLAMA_BASE_URL = CONFIG.OLLAMA_BASE_URL; // Base URL for the Ollama API
-    const endpoint = "/api/tags"; // API endpoint
-
-    try {
-        const response = await fetch(`${OLLAMA_BASE_URL}${endpoint}`);
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status} ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        return data.models; // Return the array of models
-    } catch (error) {
-        console.error('Failed to fetch models:', error);
-        return []; // Return an empty array on error
-    }
+    console.log("Fetching models from API...");
+    const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
+    if (!response.ok) throw new Error('Failed to fetch models.');
+    const data = await response.json();
+    console.log("Models fetched:", data.models);
+    return data.models;
 }
 
+// Fetch Model Descriptions
 async function fetchModelDescriptions() {
-    try {
-        const response = await fetch('models_descriptions.json'); // Fetch model descriptions
-        if (!response.ok) {
-            throw new Error(`Error fetching model descriptions: ${response.statusText}`);
-        }
-        const data = await response.json();
-        return data.models; // Return the descriptions
-    } catch (error) {
-        console.error(error);
-        return {}; // Return an empty object on error
-    }
+    console.log("Fetching model descriptions...");
+    const response = await fetch('models_descriptions.json');
+    if (!response.ok) throw new Error('Failed to fetch model descriptions.');
+    const data = await response.json();
+    console.log("Model descriptions fetched:", data.models);
+    return data.models;
 }
 
-// Get the complete description, inheriting from parent if necessary
-function getCompleteDescription(modelName, descriptions) {
-    let model = descriptions[modelName];
-
-    if (!model) {
-        return {
-            title: modelName, // Fallback to the model name
-            summary: 'No summary available.',
-            description: 'No description available.'
-        };
-    }
-
-    // Get title, summary, and description, falling back to inheritance
-    let completeTitle = model.title || (model.inherits ? descriptions[model.inherits]?.title : '');
-    let completeSummary = model.summary || (model.inherits ? descriptions[model.inherits]?.summary : 'No summary available.');
-    let completeDescription = model.description || (model.inherits ? descriptions[model.inherits]?.description : '');
-
-    return {
-        title: completeTitle,
-        summary: completeSummary,
-        description: completeDescription
-    };
-}
-
-// Populate the model selection dropdown
+// Populate Model Select
 function populateModelSelect(models, descriptions) {
     const modelSelect = document.getElementById('model-select');
     modelSelect.innerHTML = ''; // Clear existing options
 
-    models.forEach(model => {
+    if (!models.length) {
         const option = document.createElement('option');
-        option.value = model.name; // Model name from API
-
-        const { title } = getCompleteDescription(model.name, descriptions); // Get title
-        option.textContent = `${model.name} - ${title}`; // Show model name with title
+        option.value = '';
+        option.textContent = 'No models available';
         modelSelect.appendChild(option);
-    });
-
-    // Set the default model from localStorage or fallback to a default
-    const lastUsedModel = localStorage.getItem('defaultModel') || 'codellama:13b'; // Default model
-    if (models.some(model => model.name === lastUsedModel)) {
-        modelSelect.value = lastUsedModel; // Set the stored model if it exists
-    } else {
-        modelSelect.value = 'codellama:13b'; // Fallback default model
-        showFeedbackMessage(`Model "${lastUsedModel}" not found. Using fallback: "codellama:13b".`, false);
+        return;
     }
 
-    // Show description and summary for the default model
+    models.forEach(model => {
+        if (model && model.name) {
+            const { title } = getCompleteDescription(model.name, descriptions);
+            const option = document.createElement('option');
+            option.value = model.name;
+            option.textContent = `${title} - ${model.name}`; // Show title and model name
+            modelSelect.appendChild(option);
+        } else {
+            console.warn('Model is undefined or missing a name:', model);
+        }
+    });
+
+    const defaultModel = localStorage.getItem('defaultModel') || models[0]?.name;
+    modelSelect.value = defaultModel || '';
+
     showModelDetails(modelSelect.value, descriptions);
 }
 
-// Show model details in a text area
-function showModelDetails(modelName, descriptions) {
-    const { summary, description } = getCompleteDescription(modelName, descriptions);
+// Simplified Get Complete Description
+function getCompleteDescription(modelName, descriptions) {
+    if (!descriptions) {
+        return { title: modelName, summary: '', description: '' };
+    }
 
-    document.getElementById('model-summary').textContent = summary; // Show summary
-    document.getElementById('model-description').value = description; // Set the text area to show the model description
+    // Get the user's preferred language
+    const userLanguage = navigator.language || navigator.userLanguage; // e.g., "en-US", "pt-BR"
+    const languageCode = userLanguage.includes('pt') ? 'pt-br' : 'en-us'; // Default to 'pt-br' if in Portuguese
+
+    // Directly get the model description using the model name
+    const modelDesc = descriptions[modelName];
+
+    // If the model isn't found, attempt to use the base model name (before any colon)
+    if (!modelDesc) {
+        const baseModelName = modelName.split(':')[0];
+        const baseModelDesc = descriptions[baseModelName];
+        if (baseModelDesc) {
+            return baseModelDesc;
+        } else {
+            // If still not found, return a default description
+            return { title: modelName, summary: '', description: '' };
+        }
+    }
+
+    // Safely return the description in the preferred language
+    return {
+        title: modelDesc.title[languageCode] || modelName,
+        summary: modelDesc.summary[languageCode] || '',
+        description: modelDesc.description[languageCode] || ''
+    };
 }
 
-// Feedback message display
+
+
+// Show Model Details
+function showModelDetails(modelName, descriptions) {
+    const { summary, description } = getCompleteDescription(modelName, descriptions);
+    document.getElementById('model-summary').textContent = summary;
+    document.getElementById('model-description').value = description;
+}
+
+// Show Feedback Message
 function showFeedbackMessage(message, isSuccess) {
     const feedbackMessage = document.getElementById('feedback-message');
     feedbackMessage.textContent = message;
-    feedbackMessage.className = 'feedback-message'; // Reset classes
+    feedbackMessage.className = 'feedback-message';
     feedbackMessage.classList.add(isSuccess ? 'success' : 'error');
     feedbackMessage.style.display = 'block';
 
-    // Hide after 3 seconds
     setTimeout(() => {
         feedbackMessage.style.display = 'none';
     }, 3000);
 }
 
-// Setup event listeners
-document.getElementById('set-model-button').addEventListener('click', () => {
+// Send a message to the Ollama server and receive a response
+async function sendMessage(message, modelName) {
+    const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: modelName, text: message })
+    });
+    if (!response.ok) throw new Error('Failed to send message.');
+    const data = await response.json();
+    return data.responses;
+}
+
+// Add a message to the chat window
+function addChatMessage(message, sender) {
+    const chatWindow = document.getElementById('chat-window');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('chat-message', sender);
+    messageElement.textContent = message;
+    chatWindow.appendChild(messageElement);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+// Handle sending messages
+document.getElementById('send-button').addEventListener('click', handleSendMessage);
+document.getElementById('user-input').addEventListener('keypress', event => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        handleSendMessage();
+    }
+});
+
+async function handleSendMessage() {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
     const modelSelect = document.getElementById('model-select');
     const selectedModel = modelSelect.value;
 
-    if (selectedModel) {
-        localStorage.setItem('defaultModel', selectedModel); // Save to localStorage
-        showFeedbackMessage(`Model "${selectedModel}" set as default.`, true);
-    } else {
+    if (!message) {
+        showFeedbackMessage('Please enter a message.', false);
+        return;
+    }
+
+    if (!selectedModel) {
         showFeedbackMessage('Please select a model.', false);
+        return;
+    }
+
+    addChatMessage(message, 'user');
+    userInput.value = '';
+
+    const sendButton = document.getElementById('send-button');
+    sendButton.disabled = true;
+
+    try {
+        const responses = await sendMessage(message, selectedModel);
+        responses.forEach(response => addChatMessage(response, 'model'));
+    } catch (error) {
+        console.error('Failed to send message:', error);
+        showFeedbackMessage('Failed to send message. Please try again.', false);
+    } finally {
+        sendButton.disabled = false;
+    }
+}
+
+// Event listener for "Set as Default" button
+document.getElementById('set-model-button').addEventListener('click', () => {
+    const modelSelect = document.getElementById('model-select');
+    const selectedModel = modelSelect.value;
+    if (selectedModel) {
+        localStorage.setItem('defaultModel', selectedModel);
+        showFeedbackMessage(`Model "${selectedModel}" has been set as the default model.`, true);
+    } else {
+        showFeedbackMessage('Please select a model to set as default.', false);
     }
 });
 
 // Event listener to show the model details
-document.getElementById('model-select').addEventListener('change', (event) => {
+document.getElementById('model-select').addEventListener('change', event => {
     const selectedModel = event.target.value;
     showModelDetails(selectedModel, modelDescriptions);
-});
-
-// Fetch and populate models on page load
-let modelDescriptions = {};
-Promise.all([fetchModels(), fetchModelDescriptions()]).then(([models, descriptions]) => {
-    modelDescriptions = descriptions; // Store descriptions globally
-    populateModelSelect(models, descriptions);
-}).catch(error => {
-    console.error('Error fetching models:', error);
-    showFeedbackMessage('Error loading models.', false);
 });

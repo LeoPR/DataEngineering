@@ -1,36 +1,74 @@
 {
     "models": {
-        "llama": {
-            "title": "Llama Model Series",
-            "summary": "A family of models designed for advanced natural language understanding and generation.",
-            "description": "The Llama model series excels at natural language tasks."
+        "llama3.2": {
+            "title": {
+                "en-us": "Ollama 3.2 Model",
+                "pt-br": "Modelo Ollama 3.2"
+            },
+            "summary": {
+                "en-us": "A versatile model fine-tuned for high accuracy.",
+                "pt-br": "Um modelo versátil ajustado para alta precisão."
+            },
+            "description": {
+                "en-us": "Ollama 3.2 excels in natural language understanding, making it suitable for various applications, including text generation and dialogue systems.",
+                "pt-br": "Ollama 3.2 se destaca na compreensão da linguagem natural, tornando-se adequado para várias aplicações, incluindo geração de texto e sistemas de diálogo."
+            }
         },
-        "ollama2": {
-            "inherits": "llama",
-            "title": "Ollama 2 Model",
-            "summary": "An iteration focused on improving conversational context and response quality.",
-            "description": "Ollama 2 enhances conversational abilities and is optimized for understanding user intent."
+        "llama3.2:1b": {
+            "title": {
+                "en-us": "Ollama 3.2 - 1B Parameters",
+                "pt-br": "Ollama 3.2 - 1B Parâmetros"
+            },
+            "summary": {
+                "en-us": "A compact version optimized for resource-limited environments.",
+                "pt-br": "Uma versão compacta otimizada para ambientes com recursos limitados."
+            },
+            "description": {
+                "en-us": "This variant of Ollama 3.2 retains its foundational capabilities while being optimized for smaller deployments with 1 billion parameters.",
+                "pt-br": "Esta variante do Ollama 3.2 mantém suas capacidades fundamentais enquanto é otimizada para implementações menores com 1 bilhão de parâmetros."
+            }
         },
-        "ollama3": {
-            "inherits": "ollama2",
-            "summary": "An advanced model in the Ollama series with enhanced contextual awareness.",
-            "description": "Ollama 3 introduces significant improvements in understanding complex queries."
-        },
-        "ollama3.2": {
-            "inherits": "ollama3",
-            "title": "Ollama 3.2 Model",
-            "summary": "The latest enhancement in the Ollama 3 series, fine-tuned for specific tasks.",
-            "description": "Ollama 3.2 is designed for high accuracy and context retention."
-        },
-        "ollama3.2:1b": {
-            "inherits": "ollama3.2",
-            "summary": "Ollama 3.2 with 1 billion parameters.",
-            "description": "This model variant leverages the architecture of Ollama 3.2 while optimizing for performance in smaller deployments."
+        "codellama": {
+            "title": {
+                "en-us": "CodeLlama Model",
+                "pt-br": "Modelo CodeLlama"
+            },
+            "summary": {
+                "en-us": "A model specifically designed for code-related tasks.",
+                "pt-br": "Um modelo especificamente projetado para tarefas relacionadas a código."
+            },
+            "description": {
+                "en-us": "CodeLlama is fine-tuned to understand and generate programming code, making it an excellent choice for code completion and generation tasks.",
+                "pt-br": "CodeLlama é ajustado para entender e gerar código de programação, tornando-se uma excelente escolha para tarefas de conclusão e geração de código."
+            }
         },
         "llama2-uncensored": {
-            "title": "Llama 2 Uncensored Model",
-            "summary": "A model variant with fewer content filters.",
-            "description": "Llama 2 Uncensored allows for a wider range of outputs while maintaining foundational capabilities."
+            "title": {
+                "en-us": "Llama 2 Uncensored",
+                "pt-br": "Llama 2 Sem Censura"
+            },
+            "summary": {
+                "en-us": "A model variant with fewer restrictions on content output.",
+                "pt-br": "Uma variante do modelo com menos restrições na saída de conteúdo."
+            },
+            "description": {
+                "en-us": "Llama 2 Uncensored allows for a broader range of outputs, providing flexibility while still maintaining foundational capabilities.",
+                "pt-br": "Llama 2 Sem Censura permite uma gama mais ampla de saídas, proporcionando flexibilidade enquanto ainda mantém capacidades fundamentais."
+            }
+        },
+        "llama3.2portugues": {
+            "title": {
+                "en-us": "Ollama 3.2 Portuguese Model",
+                "pt-br": "Modelo Ollama 3.2 em Português"
+            },
+            "summary": {
+                "en-us": "A model fine-tuned for Portuguese language tasks.",
+                "pt-br": "Um modelo ajustado para tarefas em língua portuguesa."
+            },
+            "description": {
+                "en-us": "Ollama 3.2 Portuguese is tailored for natural language processing in Portuguese, making it ideal for applications requiring fluency in the language.",
+                "pt-br": "Ollama 3.2 em Português é adaptado para processamento de linguagem natural em português, tornando-o ideal para aplicações que requerem fluência na língua."
+            }
         }
     }
 }
