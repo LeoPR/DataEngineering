@@ -68,8 +68,9 @@ function populateModelSelect(models, descriptions) {
         }
     });
 
-    const defaultModel = localStorage.getItem('defaultModel') || models[0]?.name;
-    modelSelect.value = defaultModel || '';
+    // Set the default model from localStorage or the first available model
+    const storedDefaultModel = localStorage.getItem('defaultModel') || (models.length ? models[0].name : '');
+    modelSelect.value = storedDefaultModel || '';
 
     showModelDetails(modelSelect.value, descriptions);
 }
@@ -77,6 +78,7 @@ function populateModelSelect(models, descriptions) {
 // Simplified Get Complete Description
 function getCompleteDescription(modelName, descriptions) {
     if (!descriptions) {
+        console.log(`No descriptions provided for model: ${modelName}`);
         return { title: modelName, summary: '', description: '' };
     }
 
@@ -84,30 +86,40 @@ function getCompleteDescription(modelName, descriptions) {
     const userLanguage = navigator.language || navigator.userLanguage; // e.g., "en-US", "pt-BR"
     const languageCode = userLanguage.includes('pt') ? 'pt-br' : 'en-us'; // Default to 'pt-br' if in Portuguese
 
+    console.log(`User language detected: ${languageCode}`);
+
     // Directly get the model description using the model name
-    const modelDesc = descriptions[modelName];
+    let modelDesc = descriptions[modelName];
+    console.log(`Model description for "${modelName}":`, modelDesc);
 
     // If the model isn't found, attempt to use the base model name (before any colon)
     if (!modelDesc) {
         const baseModelName = modelName.split(':')[0];
-        const baseModelDesc = descriptions[baseModelName];
-        if (baseModelDesc) {
-            return baseModelDesc;
-        } else {
-            // If still not found, return a default description
-            return { title: modelName, summary: '', description: '' };
-        }
+        modelDesc = descriptions[baseModelName];
+        console.log(`Base model description for "${baseModelName}":`, modelDesc);
     }
 
-    // Safely return the description in the preferred language
+    // If still not found, return default
+    if (!modelDesc) {
+        console.log(`No description found for model: ${modelName}`);
+        return { title: modelName, summary: '', description: '' };
+    }
+
+    // Retrieve title, summary, and description based on languageCode
+    const title = modelDesc.title[languageCode] || modelDesc.title['en-us'] || modelName;
+    const summary = modelDesc.summary[languageCode] || modelDesc.summary['en-us'] || '';
+    const description = modelDesc.description[languageCode] || modelDesc.description['en-us'] || '';
+
+    console.log(`Resolved title: ${title}`);
+    console.log(`Resolved summary: ${summary}`);
+    console.log(`Resolved description: ${description}`);
+
     return {
-        title: modelDesc.title[languageCode] || modelName,
-        summary: modelDesc.summary[languageCode] || '',
-        description: modelDesc.description[languageCode] || ''
+        title,
+        summary,
+        description
     };
 }
-
-
 
 // Show Model Details
 function showModelDetails(modelName, descriptions) {
