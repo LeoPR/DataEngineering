@@ -22,24 +22,44 @@ async function init() {
         showFeedbackMessage('Error initializing application.', false);
     }
 }
+// Timeout configurations based on models (in milliseconds)
+const TIMEOUT_CONFIG = {
+    "llama3.2": {
+        wakeUp: 115 * 1000, // 115 seconds
+        response: 5 * 1000   // 5 seconds
+    },
+    "llama3.2:1b": {
+        wakeUp: 115 * 1000, // Same as llama3.2 for this example
+        response: 5 * 1000
+    },
+    "codellama": {
+        wakeUp: 60 * 1000,  // Example: 60 seconds
+        response: 4 * 1000
+    },
+    "llama2-uncensored": {
+        wakeUp: 60 * 1000,
+        response: 4 * 1000
+    },
+    "llama3.2portugues": {
+        wakeUp: 80 * 1000,  // Example: 80 seconds
+        response: 6 * 1000
+    },
+    // Add more models and their timeout values as needed
+};
 
 // Fetch Models
 async function fetchModels() {
-    console.log("Fetching models from API...");
     const response = await fetch(`${OLLAMA_BASE_URL}/api/tags`);
     if (!response.ok) throw new Error('Failed to fetch models.');
     const data = await response.json();
-    console.log("Models fetched:", data.models);
     return data.models;
 }
 
 // Fetch Model Descriptions
 async function fetchModelDescriptions() {
-    console.log("Fetching model descriptions...");
     const response = await fetch('models_descriptions.json');
     if (!response.ok) throw new Error('Failed to fetch model descriptions.');
     const data = await response.json();
-    console.log("Model descriptions fetched:", data.models);
     return data.models;
 }
 
@@ -78,41 +98,26 @@ function populateModelSelect(models, descriptions) {
 // Simplified Get Complete Description
 function getCompleteDescription(modelName, descriptions) {
     if (!descriptions) {
-        console.log(`No descriptions provided for model: ${modelName}`);
         return { title: modelName, summary: '', description: '' };
     }
 
-    // Get the user's preferred language
     const userLanguage = navigator.language || navigator.userLanguage; // e.g., "en-US", "pt-BR"
     const languageCode = userLanguage.includes('pt') ? 'pt-br' : 'en-us'; // Default to 'pt-br' if in Portuguese
 
-    console.log(`User language detected: ${languageCode}`);
-
-    // Directly get the model description using the model name
     let modelDesc = descriptions[modelName];
-    console.log(`Model description for "${modelName}":`, modelDesc);
 
-    // If the model isn't found, attempt to use the base model name (before any colon)
     if (!modelDesc) {
         const baseModelName = modelName.split(':')[0];
         modelDesc = descriptions[baseModelName];
-        console.log(`Base model description for "${baseModelName}":`, modelDesc);
     }
 
-    // If still not found, return default
     if (!modelDesc) {
-        console.log(`No description found for model: ${modelName}`);
         return { title: modelName, summary: '', description: '' };
     }
 
-    // Retrieve title, summary, and description based on languageCode
     const title = modelDesc.title[languageCode] || modelDesc.title['en-us'] || modelName;
     const summary = modelDesc.summary[languageCode] || modelDesc.summary['en-us'] || '';
     const description = modelDesc.description[languageCode] || modelDesc.description['en-us'] || '';
-
-    console.log(`Resolved title: ${title}`);
-    console.log(`Resolved summary: ${summary}`);
-    console.log(`Resolved description: ${description}`);
 
     return {
         title,
@@ -141,17 +146,67 @@ function showFeedbackMessage(message, isSuccess) {
     }, 3000);
 }
 
-// Send a message to the Ollama server and receive a response
+// Enhanced Send Message Function
+// Enhanced Send Message Function with Timeout
 async function sendMessage(message, modelName) {
-    const response = await fetch(`${OLLAMA_BASE_URL}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: modelName, text: message })
-    });
-    if (!response.ok) throw new Error('Failed to send message.');
-    const data = await response.json();
-    return data.responses;
+    const systemMessage = {
+        role: "system",
+        content: "Responda em portugues, com frases curtas."
+    };
+
+    const userMessage = {
+        role: "user",
+        content: message
+    };
+
+    const requestBody = {
+        model: modelName,
+        messages: [systemMessage, userMessage]
+    };
+
+    // Get the timeouts for the selected model
+    const { wakeUp, response } = TIMEOUT_CONFIG[modelName] || { wakeUp: 10000, response: 5000 }; // Default to 10s and 5s if not found
+
+    const fetchWithTimeout = (url, options, timeout) => {
+        return Promise.race([
+            fetch(url, options),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Request timed out')), timeout))
+        ]);
+    };
+
+    try {
+        // Wake up the model (simulated with timeout)
+        await new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, wakeUp);
+        });
+
+        // Now make the fetch call
+        const response = await fetchWithTimeout(`${OLLAMA_BASE_URL}/v1/chat/completions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        }, response);
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Extract the assistant's message from the response
+        const assistantMessage = data.choices[0]?.message?.content || "No response from the assistant.";
+        return [assistantMessage]; // Return the response in an array format
+    } catch (error) {
+        console.error('Failed to send message:', error);
+        showFeedbackMessage('Failed to send message. Please try again.', false);
+        return []; // Return an empty array on error
+    }
 }
+
 
 // Add a message to the chat window
 function addChatMessage(message, sender) {
